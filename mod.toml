@@ -25,7 +25,7 @@ For more details, see https://github.com/Zelda64Recomp/MMRecompModTemplate."""
 short_description = "Always perform a quickspin when swinging your sword."
 
 # Authors of this mod.
-authors = [ "Your name here" ]
+authors = [ "Neirn" ]
 
 # ID of the target recomp game.
 game_id = "mm"
