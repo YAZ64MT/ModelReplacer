@@ -125,7 +125,7 @@ void post_DmaMgr_RequestSync() {
     }
 
     unsigned long id;
-    if (ZGlobalObj_getObjIdFromVrom(gVrom, &id)) {
+    if (ZGlobalObj_getObjectIdFromVrom(gVrom, &id)) {
         ZProxy *zProxy = GET_ZPROXY(id);
         if (zProxy) {
             Node *curr = LinkedList_start(&zProxy->vanillaDisplayLists);
