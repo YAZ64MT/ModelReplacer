@@ -120,7 +120,7 @@ void on_DmaMgr_RequestSync(DmaRequest *req) {
 
 RECOMP_HOOK_RETURN("DmaMgr_ProcessRequest")
 void post_DmaMgr_RequestSync() {
-    if (gIsProxyLoaderisEnabled) {
+    if (!gIsProxyLoaderisEnabled) {
         return;
     }
 
