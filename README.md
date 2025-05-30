@@ -1,8 +1,22 @@
-# Majora's Mask: Recompiled Mod Template
+# Model Replacer Majora's Mask: Recompiled 
 
-This is an example mod for Majora's Mask: Recompiled that can be used as a template for creating mods. It has a basic build system, headers, sample code, and a mod config toml.
+This is a mod for Majora's Mask: Recompiled that can be used to easily replace vanilla models by injecting the different models as objects are loaded into the game.
 
-Example code for using the recompui API to build ingame UI can be found in the `ui-example` branch.
+This mod depends on the [Global Objects](https://github.com/Neirn/Z64Recomp_GlobalObjects) mod for MM: Recompiled, so be sure to have that mod downloaded too.
+
+### Usage
+
+Add "yazmt_mm_modelreplacer:0.1.0" to the dependencies section of your mod.toml file.
+
+```
+dependencies = [
+    "yazmt_mm_global_objects:0.1.0",
+]
+```
+
+To use the functions in this mod, download [modelreplacer_api.h](https://github.com/Neirn/Z64Recomp_ModelReplacer/blob/dev/include/modelreplacer_api.h) and place it in your include folder.
+
+An example showing this mod's usage can be found [here](https://github.com/Neirn/MMRecomp_ModelReplacer_example).
 
 ### Writing mods
 See [this document](https://hackmd.io/fMDiGEJ9TBSjomuZZOgzNg) for an explanation of the modding framework, including how to write function patches and perform interop between different mods.
