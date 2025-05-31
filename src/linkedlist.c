@@ -64,7 +64,7 @@ LinkedListNode *extractOrCreateNodeInList(LinkedList *list, void *data) {
 
     LinkedListNode *n = recomputil_u32_memory_hashmap_get(list->dataToNodes, (uintptr_t)data);
 
-    if (isNewNode) {
+    if (!isNewNode) {
         extractNodeInList(list, n);
     } else {
         n->data = data;
