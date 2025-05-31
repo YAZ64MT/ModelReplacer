@@ -7,8 +7,10 @@ void ZProxy_initZProxy(ZProxy *this, ObjectId id) {
     this->vanillaObjId = id;
 
     this->vanillaDLToCustomDLMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_ProxyContainer));
+    
+    this->vanillaDisplayLists = recomp_alloc(sizeof(LinkedList *));
 
-    LinkedList_initList(&this->vanillaDisplayLists);
+    LinkedList_initList(this->vanillaDisplayLists);
 }
 
 void ZProxy_destroyZProxy(ZProxy *this) {
@@ -23,7 +25,7 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
     if (!container) {
         if (recomputil_u32_memory_hashmap_create(this->vanillaDLToCustomDLMap, vanilla)) {
 
-            LinkedList_addBack(&this->vanillaDisplayLists, vanillaDisplayList);
+            LinkedList_addBack(this->vanillaDisplayLists, vanillaDisplayList);
 
             container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
 

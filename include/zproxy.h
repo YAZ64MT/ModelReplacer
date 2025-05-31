@@ -14,7 +14,7 @@ typedef struct {
 typedef struct {
     ObjectId vanillaObjId;
     U32MemoryHashmapHandle vanillaDLToCustomDLMap;
-    LinkedList vanillaDisplayLists;
+    LinkedList* vanillaDisplayLists;
 } ZProxy;
 
 void ZProxy_initZProxy(ZProxy *zProxy, ObjectId id);

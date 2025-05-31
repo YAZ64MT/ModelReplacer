@@ -128,18 +128,17 @@ void post_DmaMgr_RequestSync() {
     if (ZGlobalObj_getObjectIdFromVrom(gVrom, &id)) {
         ZProxy *zProxy = GET_ZPROXY(id);
         if (zProxy) {
-            Node *curr = LinkedList_start(&zProxy->vanillaDisplayLists);
+            LinkedListNode *curr = LinkedList_start(zProxy->vanillaDisplayLists);
             while (curr) {
-                uintptr_t vanilla = (uintptr_t)curr->data;
+                uintptr_t vanilla = (uintptr_t)LinkedListNode_getData(curr);
 
                 ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(zProxy->vanillaDLToCustomDLMap, vanilla);
 
                 if (container) {
-
                     gSPBranchList((uintptr_t)gRam + SEGMENT_OFFSET(vanilla), &container->displayList);
                 }
 
-                curr = curr->next;
+                curr = LinkedListNode_getNext(curr);
             }
         }
     }
