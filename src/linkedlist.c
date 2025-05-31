@@ -16,14 +16,26 @@ struct LinkedList {
 };
 
 LinkedListNode *LinkedListNode_getNext(LinkedListNode *n) {
+    if (!n) {
+        return NULL;
+    }
+    
     return n->next;
 }
 
 LinkedListNode *LinkedListNode_getPrev(LinkedListNode *n) {
+    if (!n) {
+        return NULL;
+    }
+
     return n->prev;
 }
 
 void *LinkedListNode_getData(LinkedListNode *n) {
+    if (!n) {
+        return NULL;
+    }
+
     return n->data;
 }
 
@@ -57,6 +69,9 @@ void extractNodeInList(LinkedList *list, LinkedListNode *n) {
         n->next = NULL;
         n->prev = NULL;
     }
+    else {
+        recomp_printf("ModelReplacer: extractNodeInList called on node 0x%X with data 0x%X not in list!\n", n, n ? n->data : 0);
+    }
 }
 
 LinkedListNode *extractOrCreateNodeInList(LinkedList *list, void *data) {
@@ -66,11 +81,11 @@ LinkedListNode *extractOrCreateNodeInList(LinkedList *list, void *data) {
 
     if (!isNewNode) {
         extractNodeInList(list, n);
-    } else {
-        n->data = data;
-        n->next = NULL;
-        n->prev = NULL;
     }
+
+    n->data = data;
+    n->next = NULL;
+    n->prev = NULL;
 
     return n;
 }
@@ -83,7 +98,7 @@ void destroyNodeInList(LinkedList *list, LinkedListNode *n) {
 void LinkedList_initList(LinkedList *list) {
     list->start = NULL;
     list->end = NULL;
-    list->dataToNodes = recomputil_create_u32_value_hashmap();
+    list->dataToNodes = recomputil_create_u32_memory_hashmap(sizeof(LinkedListNode));
 }
 
 bool LinkedList_isEmpty(LinkedList *list) {
@@ -108,30 +123,38 @@ LinkedListNode *LinkedList_end(const LinkedList *list) {
     return list->end;
 }
 
-bool insertNodeBefore(LinkedList *list, LinkedListNode *existingLinkedListNode, LinkedListNode *LinkedListNodeToInsert) {
-    LinkedListNodeToInsert->next = existingLinkedListNode;
-    LinkedListNodeToInsert->prev = existingLinkedListNode->prev;
+bool insertNodeBefore(LinkedList *list, LinkedListNode *existingLinkedListNode, LinkedListNode *linkedListNodeToInsert) {
+    linkedListNodeToInsert->next = existingLinkedListNode;
+    linkedListNodeToInsert->prev = existingLinkedListNode->prev;
 
     if (existingLinkedListNode->prev) {
-        existingLinkedListNode->prev->next = LinkedListNodeToInsert;
+        existingLinkedListNode->prev->next = linkedListNodeToInsert;
     }
+
+    existingLinkedListNode->prev = linkedListNodeToInsert;
 
     if (list->start == existingLinkedListNode) {
-        list->start = LinkedListNodeToInsert;
+        list->start = linkedListNodeToInsert;
     }
+
+    return true;
 }
 
-bool insertNodeAfter(LinkedList *list, LinkedListNode *existingLinkedListNode, LinkedListNode *LinkedListNodeToInsert) {
-    LinkedListNodeToInsert->next = existingLinkedListNode->next;
-    LinkedListNodeToInsert->prev = existingLinkedListNode;
+bool insertNodeAfter(LinkedList *list, LinkedListNode *existingLinkedListNode, LinkedListNode *linkedListNodeToInsert) {
+    linkedListNodeToInsert->next = existingLinkedListNode->next;
+    linkedListNodeToInsert->prev = existingLinkedListNode;
 
-    if (existingLinkedListNode && existingLinkedListNode->next) {
-        existingLinkedListNode->next->prev = LinkedListNodeToInsert;
+    if (existingLinkedListNode->next) {
+        existingLinkedListNode->next->prev = linkedListNodeToInsert;
     }
+
+    existingLinkedListNode->next = linkedListNodeToInsert;
 
     if (list->end == existingLinkedListNode) {
-        list->end = LinkedListNodeToInsert;
+        list->end = linkedListNodeToInsert;
     }
+
+    return true;
 }
 
 void LinkedList_addFront(LinkedList *list, void *data) {
@@ -152,7 +175,7 @@ void LinkedList_addBack(LinkedList *list, void *data) {
         list->start = n;
         list->end = n;
     } else {
-        insertAfter(list, list->end, n);
+        insertNodeAfter(list, list->end, n);
     }
 }
 
@@ -184,9 +207,13 @@ LinkedListNode *LinkedList_getNodeWithData(LinkedList *list, void *data) {
     return recomputil_u32_memory_hashmap_get(list->dataToNodes, (uintptr_t)data);
 }
 
-void LinkedList_removeData(LinkedList *list, void *data) {
+bool LinkedList_removeData(LinkedList *list, void *data) {
     LinkedListNode *n = LinkedList_getNodeWithData(list, data);
+
     if (n) {
         destroyNodeInList(list, n);
+        return true;
     }
+
+    return false;
 }

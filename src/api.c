@@ -3,12 +3,12 @@
 #include "zproxy_manager.h"
 #include "globalobjects_api.h"
 
-RECOMP_EXPORT bool ZModelReplacer_setCustomDL(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
-    return ZProxyManager_setCustomDisplayList(id, vanillaDL, customDL);
+RECOMP_EXPORT bool ZModelReplacer_addCustomDL(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
+    return ZProxyManager_addCustomDisplayList(id, vanillaDL, customDL);
 }
 
-RECOMP_EXPORT bool ZModelReplacer_removeCustomDL(ObjectId id, Gfx *vanillaDL) {
-    return ZProxyManager_removeCustomDisplayList(id, vanillaDL);
+RECOMP_EXPORT bool ZModelReplacer_removeCustomDL(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
+    return ZProxyManager_removeCustomDisplayList(id, vanillaDL, customDL);
 }
 
 RECOMP_EXPORT bool ZModelReplacer_preregisterDL(ObjectId id, Gfx *vanillaDL) {

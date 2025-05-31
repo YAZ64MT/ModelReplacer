@@ -9,9 +9,9 @@ bool ZProxyManager_registerZProxy(ObjectId id);
 
 bool ZProxyManager_unregisterZProxy(ObjectId id);
 
-bool ZProxyManager_setCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL);
+bool ZProxyManager_addCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL);
 
-bool ZProxyManager_removeCustomDisplayList(ObjectId id, Gfx *vanillaDL);
+bool ZProxyManager_removeCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL);
 
 bool ZProxyManager_reserveVanillaDisplayList(ObjectId id, Gfx *vanillaDL);
 

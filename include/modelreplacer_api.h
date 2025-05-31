@@ -8,19 +8,26 @@
 
 // Replaces the display list (DL) at the passed in segmented pointer in the given object id.
 //
-// Returns true if model replaced, false otherwise.
+// Custom display lists are added in a stack, where the list at the top of the stack is the one displayed.
+//
+// If other custom DLs are added after this, the most recently added DL will be drawn instead of this one.
+// But if all DLs "above" this one in the stack are removed, this one will be drawn again.
+//
+// If the passed in custom DL was already in the stack, it will be moved to the top.
+//
+// Returns true if model added to top of stack, false otherwise.
 //
 // Usage Example:
-// ZModelReplacer_setCustomDL(OBJECT_LINK_CHILD, gLinkHumanGreatFairysSwordDL, myCoolSwordModel)
-RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_setCustomDL(ObjectId id, Gfx *vanillaDL, Gfx *customDL));
+// ZModelReplacer_addCustomDL(OBJECT_LINK_CHILD, gLinkHumanGreatFairysSwordDL, myCoolSwordModel)
+RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_addCustomDL(ObjectId id, Gfx *vanillaDL, Gfx *customDL));
 
-// Restores the model to its vanilla appearance.
+// Removes the custom display list from the custom display list stack.
 //
-// Returns true if reset ocurred, false otherwise.
+// Returns true if removal ocurred, false if nothing happened.
 //
 // Usage Example:
-// ZModelReplacer_removeCustomDL(OBJECT_LINK_CHILD, gLinkHumanGreatFairysSwordDL)
-RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_removeCustomDL(ObjectId id, Gfx *vanillaDL));
+// ZModelReplacer_removeCustomDL(OBJECT_LINK_CHILD, gLinkHumanGreatFairysSwordDL, myCoolSwordModel)
+RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_removeCustomDL(ObjectId id, Gfx *vanillaDL, Gfx *customDL));
 
 // If a model has not been replaced during this play session, the object will need to be reloaded before
 // its replacement shows up.

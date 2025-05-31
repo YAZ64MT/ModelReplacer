@@ -15,7 +15,7 @@ U32MemoryHashmapHandle gObjIdToProxyMap;
 #define REMOVE_ZPROXY_ENTRY(objId) (recomputil_u32_memory_hashmap_erase(gObjIdToProxyMap, objId))
 
 bool isSegmentedPtr(void *p) {
-    return SEGMENT_NUMBER(p) <= 0xF;
+    return ((uintptr_t)p >> 24) <= 0xF;
 }
 
 void ZProxyManager_initManager() {
@@ -54,10 +54,12 @@ bool ZProxyManager_unregisterZProxy(ObjectId id) {
     return false;
 }
 
-bool ZProxyManager_setCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
-    if (!isSegmentedPtr(vanillaDL)) {
+bool ZProxyManager_addCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
+    if (!isSegmentedPtr(vanillaDL) || isSegmentedPtr(customDL)) {
         return false;
     }
+
+    recomp_printf("Received customDL 0x%X\n", customDL);
 
     ZProxy *zProxy = GET_ZPROXY(id);
 
@@ -66,11 +68,11 @@ bool ZProxyManager_setCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *custom
         zProxy = GET_ZPROXY(id);
     }
 
-    return ZProxy_setCustomDisplayList(zProxy, vanillaDL, customDL);
+    return ZProxy_addCustomDisplayList(zProxy, vanillaDL, customDL);
 }
 
-bool ZProxyManager_removeCustomDisplayList(ObjectId id, Gfx *vanillaDL) {
-    if (!isSegmentedPtr(vanillaDL)) {
+bool ZProxyManager_removeCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
+    if (!isSegmentedPtr(vanillaDL) || isSegmentedPtr(customDL)) {
         return false;
     }
 
@@ -81,7 +83,7 @@ bool ZProxyManager_removeCustomDisplayList(ObjectId id, Gfx *vanillaDL) {
         zProxy = GET_ZPROXY(id);
     }
 
-    return ZProxy_removeCustomDisplayList(zProxy, vanillaDL);
+    return ZProxy_removeCustomDisplayList(zProxy, vanillaDL, customDL);
 }
 
 bool ZProxyManager_reserveVanillaDisplayList(ObjectId id, Gfx *vanillaDL) {

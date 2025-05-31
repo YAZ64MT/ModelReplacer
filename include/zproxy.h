@@ -7,6 +7,7 @@
 #include "linkedlist.h"
 
 typedef struct {
+    LinkedList* customDisplayListStack;
     Gfx* vanillaDisplayList;
     Gfx displayList;
 } ZProxy_ProxyContainer;
@@ -21,9 +22,9 @@ void ZProxy_initZProxy(ZProxy *zProxy, ObjectId id);
 
 void ZProxy_destroyZProxy(ZProxy *zProxy);
 
-bool ZProxy_setCustomDisplayList(ZProxy *zProxy, Gfx *vanillaDisplayList, Gfx customDisplayList[]);
+bool ZProxy_addCustomDisplayList(ZProxy *zProxy, Gfx *vanillaDisplayList, Gfx *customDisplayList);
 
-bool ZProxy_removeCustomDisplayList(ZProxy *zProxy, Gfx *vanillaDisplayList);
+bool ZProxy_removeCustomDisplayList(ZProxy *zProxy, Gfx *vanillaDisplayList, Gfx *customDisplayList);
 
 bool ZProxy_reserveContainer(ZProxy *zProxy, Gfx *vanillaDisplayList);
 
