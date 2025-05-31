@@ -51,7 +51,7 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
 
 void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
     Gfx *dl = LinkedListNode_getData(LinkedList_end(c->customDisplayListStack));
-    recomp_printf("refreshContainerDL custom DL: 0x%X\n", dl);
+    
     if (!dl) {
         dl = ZGlobalObj_getGlobalGfxPtr(this->vanillaObjId, c->vanillaDisplayList);
     }
