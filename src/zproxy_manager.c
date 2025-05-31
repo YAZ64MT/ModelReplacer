@@ -59,8 +59,6 @@ bool ZProxyManager_addCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *custom
         return false;
     }
 
-    recomp_printf("Received customDL 0x%X\n", customDL);
-
     ZProxy *zProxy = GET_ZPROXY(id);
 
     if (!zProxy) {
