@@ -19,10 +19,6 @@ LinkedListNode *LinkedList_start(const LinkedList *list);
 
 LinkedListNode *LinkedList_end(const LinkedList *list);
 
-void LinkedList_insertBefore(LinkedList *list, LinkedListNode *existingLinkedListNode, LinkedListNode *LinkedListNodeToInsert);
-
-void LinkedList_insertAfter(LinkedList *list, LinkedListNode *existingLinkedListNode, LinkedListNode *LinkedListNodeToInsert);
-
 void LinkedList_addFront(LinkedList *list, void *data);
 
 void LinkedList_addBack(LinkedList *list, void *data);
@@ -32,6 +28,8 @@ void LinkedList_removeFront(LinkedList *list);
 void LinkedList_removeBack(LinkedList *list);
 
 void LinkedList_removeData(LinkedList *list, void *data);
+
+LinkedListNode *LinkedList_getNodeWithData(LinkedList *list, void *data);
 
 // second arg is a function condFunc taking two pointers and returns a bool
 // third argument will be passed as the second argument to condFunc
