@@ -19,6 +19,10 @@ LinkedListNode *LinkedList_start(const LinkedList *list);
 
 LinkedListNode *LinkedList_end(const LinkedList *list);
 
+void LinkedList_insertBefore(LinkedList *list, LinkedListNode *existingLinkedListNode, LinkedListNode *LinkedListNodeToInsert);
+
+void LinkedList_insertAfter(LinkedList *list, LinkedListNode *existingLinkedListNode, LinkedListNode *LinkedListNodeToInsert);
+
 void LinkedList_addFront(LinkedList *list, void *data);
 
 void LinkedList_addBack(LinkedList *list, void *data);
