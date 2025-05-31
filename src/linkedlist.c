@@ -78,25 +78,42 @@ void LinkedList_removeBack(LinkedList *list) {
     }
 }
 
-void LinkedList_removeData(LinkedList *list, void *data) {
-    Node *curr = list->start;
-    while(curr) {
-        if (curr->data == data) {
-            if (curr->prev) {
-                curr->prev->next = curr->next;
-            }
+void removeNode(LinkedList *list, Node* n) {
+    if (n == list->start) {
+        list->start = n->next;
+    }
 
-            if (curr->next) {
-                curr->next->prev = curr->prev;
-            }
+    if (n == list->end) {
+        list->end = n->prev;
+    }
+
+    if (n->prev) {
+        n->prev->next = n->next;
+    }
+
+    if (n->next) {
+        n->next->prev = n->prev;
+    }
+
+    recomp_free(n);
+}
+
+void LinkedList_removeOnCondition(LinkedList *list, bool (*condFunc)(void *nodeData, void *extraData), void *extraData) {
+    Node *curr = list->start;
+
+    while (curr) {
+        if (conditionFunc(curr->data, extraData)) {
+            removeNode(list, curr);
         }
+
+        curr = curr->next;
     }
 }
 
-void LinkedList_forEach(LinkedList *list, void (*nodeProcessingFunc)(void *)) {
-    Node *curr = list->start;
+bool isPtrEqual(const void *p1, const void *p2) {
+    return p1 == p2;
+}
 
-    while(curr) {
-        (nodeProcessingFunc(curr->data));
-    }
+void LinkedList_removeData(LinkedList *list, void *data) {
+    LinkedList_removeOnCondition(list, isPtrEqual, data);
 }

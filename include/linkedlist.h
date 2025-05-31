@@ -30,6 +30,12 @@ void LinkedList_removeBack(LinkedList *list);
 
 void LinkedList_removeData(LinkedList *list, void *data);
 
-void LinkedList_forEach(LinkedList *list, void (*nodeProcessingFunc)(void *));
+// second arg is a function condFunc taking two pointers and returns a bool
+// third argument will be passed as the second argument to condFunc
+// Each node's data will be passed as the first arg of condFunc
+// if condFunc returns true, the node will be removed
+void LinkedList_removeOnCondition(LinkedList *list, bool (*condFunc)(void *nodeData, void *extraData), void *extraData);
+
+void LinkedList_removeData(LinkedList *list, void *data);
 
 #endif
