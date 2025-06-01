@@ -4,13 +4,15 @@ This is a mod for Majora's Mask: Recompiled that can be used to easily replace v
 
 This mod depends on the [Global Objects](https://github.com/Neirn/Z64Recomp_GlobalObjects) mod for MM: Recompiled, so be sure to have that mod downloaded too.
 
+API is currently unstable and may change between updates.
+
 ### Usage
 
-Add "yazmt_mm_modelreplacer:0.1.0" to the dependencies section of your mod.toml file.
+Add [this header file](https://github.com/Neirn/Z64Recomp_ModelReplacer/blob/main/include/modelreplacer_api.h) to your includes and "yazmt_mm_modelreplacer" to the dependencies section of your mod.toml file.
 
 ```
 dependencies = [
-    "yazmt_mm_global_objects:0.1.0",
+    "yazmt_mm_modelreplacer",
 ]
 ```
 
