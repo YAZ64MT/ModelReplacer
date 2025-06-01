@@ -16,9 +16,16 @@ dependencies = [
 ]
 ```
 
-To use the functions in this mod, download [modelreplacer_api.h](https://github.com/Neirn/Z64Recomp_ModelReplacer/blob/dev/include/modelreplacer_api.h) and place it in your include folder.
+Look at the header itself for function names and what they do.
 
-An example showing this mod's usage can be found [here](https://github.com/Neirn/MMRecomp_ModelReplacer_example).
+This mod initializes itself fairly early in the boot process, so it should be safe to call its functions at most times after the game boots. Call them too early though, and this mod breaks. So, an event named `ZModelReplacer_onReady` that is guaranteed to run right after the model replacer initializes itself has been added. The expected function takes no arguments and can be added as follows:
+
+```c
+RECOMP_CALLBACK(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ZModelReplacer_onReady)
+void my_cool_function() {
+    // do something
+}
+```
 
 ### Writing mods
 See [this document](https://hackmd.io/fMDiGEJ9TBSjomuZZOgzNg) for an explanation of the modding framework, including how to write function patches and perform interop between different mods.
