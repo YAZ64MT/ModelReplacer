@@ -54,9 +54,12 @@ RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_setReplacer
 // to the top.
 RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_pushReplacer(ZModelReplacerHandle handle));
 
-// Removes the custom display list from the custom display list stack.
+// Removes the Replacer from the Replacer stack
 //
-// Returns true if removal ocurred, false if nothing happened.
+// // Returns true if removal ocurred, false if nothing happened.
+//
+// Removes a Replacer from the stack. To get it to render again, you must push it back on
+// at some point.
 RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_removeReplacer(ZModelReplacerHandle handle));
 
 #endif
