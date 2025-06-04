@@ -6,6 +6,14 @@
 #include "z64object.h"
 #include "linkedlist.h"
 
+typedef collection_key_t ZModelReplacerHandle;
+
+typedef struct {
+    ObjectId id;
+    Gfx* vanillaDL;
+    Gfx *customDL;
+} ZProxy_CustomDisplayListEntry;
+
 typedef struct {
     LinkedList* customDisplayListStack;
     Gfx* vanillaDisplayList;
@@ -16,15 +24,18 @@ typedef struct {
     ObjectId vanillaObjId;
     U32MemoryHashmapHandle vanillaDLToCustomDLMap;
     LinkedList* vanillaDisplayLists;
+    U32MemoryHashmapHandle customDisplayLists;
 } ZProxy;
 
-void ZProxy_initZProxy(ZProxy *zProxy, ObjectId id);
+void ZProxy_initZProxy(ZProxy *zProxy, ObjectId id, U32MemoryHashmapHandle custocustomDisplayListMap);
 
 void ZProxy_destroyZProxy(ZProxy *zProxy);
 
-bool ZProxy_addCustomDisplayList(ZProxy *zProxy, Gfx *vanillaDisplayList, Gfx *customDisplayList);
+bool ZProxy_refresh(ZProxy *this, ZModelReplacerHandle handle);
 
-bool ZProxy_removeCustomDisplayList(ZProxy *zProxy, Gfx *vanillaDisplayList, Gfx *customDisplayList);
+bool ZProxy_addCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle);
+
+bool ZProxy_removeCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle);
 
 bool ZProxy_reserveContainer(ZProxy *zProxy, Gfx *vanillaDisplayList);
 

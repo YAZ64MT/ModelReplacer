@@ -3,12 +3,14 @@
 #include "zproxy.h"
 #include "globalobjects_api.h"
 
-void ZProxy_initZProxy(ZProxy *this, ObjectId id) {
+void ZProxy_initZProxy(ZProxy *this, ObjectId id, U32MemoryHashmapHandle customDisplayListMap) {
     this->vanillaObjId = id;
 
     this->vanillaDLToCustomDLMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_ProxyContainer));
     
     this->vanillaDisplayLists = recomp_alloc(sizeof(LinkedList *));
+
+    this->customDisplayLists = customDisplayListMap;
 
     LinkedList_initList(this->vanillaDisplayLists);
 }
@@ -50,7 +52,19 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
 }
 
 void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
-    Gfx *dl = LinkedListNode_getData(LinkedList_end(c->customDisplayListStack));
+    Gfx *dl = NULL;
+
+    LinkedListNode *curr = LinkedList_end(c->customDisplayListStack);
+
+    while(curr && !dl) {
+        ZProxy_CustomDisplayListEntry *entry = LinkedListNode_getData(curr);
+
+        if (entry) {
+            dl = entry->customDL;
+        }
+
+        curr = LinkedListNode_getPrev(curr);
+    }
     
     if (!dl) {
         dl = ZGlobalObj_getGlobalGfxPtr(this->vanillaObjId, c->vanillaDisplayList);
@@ -59,10 +73,19 @@ void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
     gSPBranchList(&c->displayList, dl);
 }
 
-bool ZProxy_addCustomDisplayList(ZProxy *this, Gfx *vanillaDisplayList, Gfx customDisplayList[]) {
+bool ZProxy_refresh(ZProxy *this, ZModelReplacerHandle handle) {
+
+    ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
+
+    if (!entry) {
+        return false;
+    }
+
+    Gfx *vanillaDisplayList = entry->vanillaDL;
+
     ZProxy_reserveContainer(this, vanillaDisplayList);
 
-    if (!customDisplayList || !vanillaDisplayList) {
+    if (!vanillaDisplayList) {
         return false;
     }
 
@@ -71,7 +94,6 @@ bool ZProxy_addCustomDisplayList(ZProxy *this, Gfx *vanillaDisplayList, Gfx cust
     ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
 
     if (container) {
-        LinkedList_addBack(container->customDisplayListStack, customDisplayList);
         refreshContainerDL(this, container);
         return true;
     }
@@ -79,7 +101,47 @@ bool ZProxy_addCustomDisplayList(ZProxy *this, Gfx *vanillaDisplayList, Gfx cust
     return false;
 }
 
-bool ZProxy_removeCustomDisplayList(ZProxy *this, Gfx *vanillaDisplayList, Gfx customDisplayList[]) {
+bool ZProxy_addCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle) {
+    ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
+
+    if (!entry) {
+        return false;
+    }
+
+    Gfx *vanillaDisplayList = entry->vanillaDL;
+
+    Gfx *customDisplayList = entry->customDL;
+
+    ZProxy_reserveContainer(this, vanillaDisplayList);
+
+    if (!vanillaDisplayList) {
+        return false;
+    }
+
+    uintptr_t vanilla = (uintptr_t)vanillaDisplayList;
+
+    ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
+
+    if (container) {
+        LinkedList_addBack(container->customDisplayListStack, entry);
+        refreshContainerDL(this, container);
+        return true;
+    }
+
+    return false;
+}
+
+bool ZProxy_removeCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle) {
+    ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
+
+    if (!entry) {
+        return false;
+    }
+
+    Gfx *vanillaDisplayList = entry->vanillaDL;
+
+    Gfx *customDisplayList = entry->customDL;
+
     ZProxy_reserveContainer(this, vanillaDisplayList);
 
     if (!customDisplayList || !vanillaDisplayList) {
@@ -90,7 +152,7 @@ bool ZProxy_removeCustomDisplayList(ZProxy *this, Gfx *vanillaDisplayList, Gfx c
 
     ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
 
-    if (container && LinkedList_removeData(container->customDisplayListStack, customDisplayList)) {
+    if (container && LinkedList_removeData(container->customDisplayListStack, entry)) {
         refreshContainerDL(this, container);
         return true;
     }

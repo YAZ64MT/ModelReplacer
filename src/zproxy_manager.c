@@ -9,10 +9,19 @@ bool gIsProxyLoaderisEnabled = false;
 
 U32MemoryHashmapHandle gObjIdToProxyMap;
 
+// TODO: Replace this with a MemorySlotapHandle
+// MemorySlotmaps seem to crash upon element creation?
+U32MemoryHashmapHandle gCustomDisplayListEntries;
+
+ZModelReplacerHandle gNextCustomHandle = 1;
+
 #define IS_ZPROXY_EXIST(objId) (recomputil_u32_memory_hashmap_contains(gObjIdToProxyMap, objId))
 #define GET_ZPROXY(objId) (recomputil_u32_memory_hashmap_get(gObjIdToProxyMap, objId))
 #define CREATE_ZPROXY_ENTRY(objId) (recomputil_u32_memory_hashmap_create(gObjIdToProxyMap, objId))
 #define REMOVE_ZPROXY_ENTRY(objId) (recomputil_u32_memory_hashmap_erase(gObjIdToProxyMap, objId))
+
+#define GET_CUSTOM_ENTRY(handle) (recomputil_u32_memory_hashmap_get(gCustomDisplayListEntries, handle))
+#define REMOVE_CUSTOM_ENTRY(handle) (recomputil_u32_memory_hashmap_erase(gCustomDisplayListEntries, handle))
 
 bool isSegmentedPtr(void *p) {
     return ((uintptr_t)p >> 24) <= 0xF;
@@ -20,14 +29,15 @@ bool isSegmentedPtr(void *p) {
 
 void ZProxyManager_initManager() {
     gObjIdToProxyMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy));
+    gCustomDisplayListEntries = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_CustomDisplayListEntry));
 }
 
 bool ZProxyManager_registerZProxy(ObjectId id) {
     if (!IS_ZPROXY_EXIST(id) && CREATE_ZPROXY_ENTRY(id)) {
-        ZProxy *zProxy = GET_ZPROXY(id);
+        ZProxy *proxy = GET_ZPROXY(id);
 
-        if (zProxy) {
-            ZProxy_initZProxy(zProxy, id);
+        if (proxy) {
+            ZProxy_initZProxy(proxy, id, gCustomDisplayListEntries);
 
             // get the non-proxy'd vanilla model into rdram
             ZProxyManager_disableModelInject();
@@ -44,59 +54,101 @@ bool ZProxyManager_registerZProxy(ObjectId id) {
 }
 
 bool ZProxyManager_unregisterZProxy(ObjectId id) {
-    ZProxy *zProxy = GET_ZPROXY(id);
+    ZProxy *proxy = GET_ZPROXY(id);
 
-    if (zProxy) {
-        ZProxy_destroyZProxy(zProxy);
+    if (proxy) {
+        ZProxy_destroyZProxy(proxy);
         return true;
     }
 
     return false;
 }
 
-bool ZProxyManager_addCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
-    if (!isSegmentedPtr(vanillaDL) || isSegmentedPtr(customDL)) {
-        return false;
-    }
-
-    ZProxy *zProxy = GET_ZPROXY(id);
-
-    if (!zProxy) {
-        ZProxyManager_registerZProxy(id);
-        zProxy = GET_ZPROXY(id);
-    }
-
-    return ZProxy_addCustomDisplayList(zProxy, vanillaDL, customDL);
-}
-
-bool ZProxyManager_removeCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
-    if (!isSegmentedPtr(vanillaDL) || isSegmentedPtr(customDL)) {
-        return false;
-    }
-
-    ZProxy *zProxy = GET_ZPROXY(id);
-
-    if (!zProxy) {
-        ZProxyManager_registerZProxy(id);
-        zProxy = GET_ZPROXY(id);
-    }
-
-    return ZProxy_removeCustomDisplayList(zProxy, vanillaDL, customDL);
-}
-
-bool ZProxyManager_reserveVanillaDisplayList(ObjectId id, Gfx *vanillaDL) {
+ZModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vanillaDL) {
     if (!isSegmentedPtr(vanillaDL)) {
         return false;
     }
 
-    ZProxy *zProxy = GET_ZPROXY(id);
+    ZProxyManager_registerZProxy(id);
 
-    if (!zProxy) {
-        ZProxyManager_registerZProxy(id);
-        zProxy = GET_ZPROXY(id);
+    ZModelReplacerHandle handle = gNextCustomHandle;
+    gNextCustomHandle++;
+
+    recomputil_u32_memory_hashmap_create(gCustomDisplayListEntries, handle);
+
+    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
+
+    entry->id = id;
+
+    entry->vanillaDL = vanillaDL;
+
+    entry->customDL = NULL;
+
+    return handle;
+}
+
+bool ZProxyManager_destroyDisplayListHandle(ZModelReplacerHandle handle) {
+    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
+
+    if (!entry) {
+        return false;
     }
 
-    return ZProxy_reserveContainer(zProxy, vanillaDL);
+    ZProxy *proxy = GET_ZPROXY(entry->id);
+
+    ZProxy_removeCustomDisplayList(proxy, handle);
+
+    return recomputil_memory_slotmap_erase(gCustomDisplayListEntries, handle);
+}
+
+bool ZProxyManager_setDisplayList(ZModelReplacerHandle handle, Gfx *customDL) {
+    if (customDL != NULL && isSegmentedPtr(customDL)) {
+        return false;
+    }
+
+    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
+
+    if (!entry) {
+        return false;
+    }
+
+    entry->customDL = customDL;
+
+    ZProxyManager_registerZProxy(entry->id);
+
+    ZProxy *proxy = GET_ZPROXY(entry->id);
+
+    ZProxy_refresh(proxy, handle);
+
+    return true;
+}
+
+bool ZProxyManager_pushDisplayList(ZModelReplacerHandle handle) {
+    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
+
+    if (!entry) {
+        return false;
+    }
+
+    ZProxyManager_registerZProxy(entry->id);
+
+    ZProxy *proxy = GET_ZPROXY(entry->id);
+
+    return ZProxy_addCustomDisplayList(proxy, handle);
+}
+
+bool ZProxyManager_removeDisplayList(ZModelReplacerHandle handle) {
+    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
+
+    if (!entry) {
+        return false;
+    }
+
+    ZProxyManager_registerZProxy(entry->id);
+
+    ZProxy *proxy = GET_ZPROXY(entry->id);
+
+    return ZProxy_removeCustomDisplayList(proxy, handle);
 }
 
 void ZProxyManager_enableModelInject() {
@@ -126,13 +178,13 @@ void post_DmaMgr_RequestSync() {
 
     unsigned long id;
     if (ZGlobalObj_getObjectIdFromVrom(gVrom, &id)) {
-        ZProxy *zProxy = GET_ZPROXY(id);
-        if (zProxy) {
-            LinkedListNode *curr = LinkedList_start(zProxy->vanillaDisplayLists);
+        ZProxy *proxy = GET_ZPROXY(id);
+        if (proxy) {
+            LinkedListNode *curr = LinkedList_start(proxy->vanillaDisplayLists);
             while (curr) {
                 uintptr_t vanilla = (uintptr_t)LinkedListNode_getData(curr);
 
-                ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(zProxy->vanillaDLToCustomDLMap, vanilla);
+                ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(proxy->vanillaDLToCustomDLMap, vanilla);
 
                 if (container) {
                     gSPBranchList((uintptr_t)gRam + SEGMENT_OFFSET(vanilla), &container->displayList);

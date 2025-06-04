@@ -4,41 +4,59 @@
 #include "global.h"
 #include "modding.h"
 
+typedef unsigned long ZModelReplacerHandle;
+
 #define YAZMT_Z64_MODEL_REPLACER_MOD_NAME "yazmt_mm_modelreplacer"
 
-// Replaces the display list (DL) at the passed in segmented pointer in the given object id.
+// Create an empty Replacer and returns a handle to it
 //
-// Custom display lists are added in a stack, where the list at the top of the stack is the one displayed.
+// Replacer handles are how your mod will interface with ModelReplacer, so hold onto it.
 //
-// If other custom DLs are added after this, the most recently added DL will be drawn instead of this one.
-// But if all DLs "above" this one in the stack are removed, this one will be drawn again.
+// Each Replacer is specific to a particular object and display list within that object, so
+// if you want to replace multiple display lists within an object, you will need a separate
+// Replacer for each display list.
 //
-// If the passed in custom DL was already in the stack, it will be moved to the top.
+// Note that this does NOT automatically add the Replacer to the stack, so make sure to call
+// ZModelReplacer_pushReplacer at some point after you create it.
+RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ZModelReplacerHandle ZModelReplacer_createReplacer(ObjectId id, Gfx *vanillaDL));
+
+// Destroys a Replacer
 //
-// Returns true if model added to top of stack, false otherwise.
+// Returns true if Replacer was destroyed, false if nothing happened.
 //
-// Usage Example:
-// ZModelReplacer_addCustomDL(OBJECT_LINK_CHILD, gLinkHumanGreatFairysSwordDL, myCoolSwordModel)
-RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_addCustomDL(ObjectId id, Gfx *vanillaDL, Gfx *customDL));
+// If you know for a fact you will never need a handle again, destroy it to avoid a memory leak.
+//
+// Though, if you just want to temporarily remove a model and add it back later, consider using
+// ZModelReplacer_removeReplacer or setting the display list to NULL with ZModelReplacer_setReplacerModel 
+// instead.
+RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_destroyReplacer(ZModelReplacerHandle handle));
+
+// Sets the display list inside the Replacer
+//
+// Returns true if display list successfully set, false otherwise.
+//
+// You may call it to switch out the display list at any time, but if your Replacer is not
+// at the top of the stack, it will not appear. The change will be reflected if your model
+// ever returns to the top of the stack, though.
+//
+// A NULL custom display list will cause this Replacer to be skipped but will preserve its
+// position in the stack if a non-NULL display list is ever set.
+RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_setReplacerModel(ZModelReplacerHandle handle, Gfx *customDL));
+
+// Pushes a Replacer to the top of the stack
+//
+// Returns true if Replacer successfully pushed, false otherwise.
+//
+// Replacers are held in a stack, and the Replacer at the top of the stack is the one rendered.
+// This puts the Replacer passed in at the top of the stack, making it appear immediately.
+//
+// If this Replacer was already in the stack, it will lose its old position when it is moved
+// to the top.
+RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_pushReplacer(ZModelReplacerHandle handle));
 
 // Removes the custom display list from the custom display list stack.
 //
 // Returns true if removal ocurred, false if nothing happened.
-//
-// Usage Example:
-// ZModelReplacer_removeCustomDL(OBJECT_LINK_CHILD, gLinkHumanGreatFairysSwordDL, myCoolSwordModel)
-RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_removeCustomDL(ObjectId id, Gfx *vanillaDL, Gfx *customDL));
-
-// If a model has not been replaced during this play session, the object will need to be reloaded before
-// its replacement shows up.
-//
-// This function is useful if you want an object to have its vanilla appearance at the start but want
-// any replacements to be immediately visible.
-//
-// Returns true on sucessful pre-registration, false otherwise.
-//
-// Usage Example:
-// ZModelReplacer_preregisterDL(OBJECT_LINK_CHILD, gLinkHumanGreatFairysSwordDL)
-RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_preregisterDL(ObjectId id, Gfx *vanillaDL));
+RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_removeReplacer(ZModelReplacerHandle handle));
 
 #endif

@@ -2,6 +2,7 @@
 #define __ZPROXY_MANAGER_H__
 
 #include "global.h"
+#include "zproxy.h"
 
 void ZProxyManager_initManager();
 
@@ -9,11 +10,15 @@ bool ZProxyManager_registerZProxy(ObjectId id);
 
 bool ZProxyManager_unregisterZProxy(ObjectId id);
 
-bool ZProxyManager_addCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL);
+ZModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vanillaDL);
 
-bool ZProxyManager_removeCustomDisplayList(ObjectId id, Gfx *vanillaDL, Gfx *customDL);
+bool ZProxyManager_destroyDisplayListHandle(ZModelReplacerHandle handle);
 
-bool ZProxyManager_reserveVanillaDisplayList(ObjectId id, Gfx *vanillaDL);
+bool ZProxyManager_setDisplayList(collection_key_t handle, Gfx *customDL);
+
+bool ZProxyManager_pushDisplayList(ZModelReplacerHandle handle);
+
+bool ZProxyManager_removeDisplayList(ZModelReplacerHandle handle);
 
 void ZProxyManager_enableModelInject();
 
