@@ -4,9 +4,11 @@
 #include "zproxy_manager.h"
 #include "globalobjects_api.h"
 
-RECOMP_EXPORT ZModelReplacerHandle ZModelReplacer_createReplacer(ObjectId id, Gfx *vanillaDL) {
-    return ZProxyManager_createDisplayListHandle(id, vanillaDL);
-
+RECOMP_EXPORT ZModelReplacerHandle ZModelReplacer_createReplacer(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
+    ZModelReplacerHandle h = ZProxyManager_createDisplayListHandle(id, vanillaDL);
+    ZProxyManager_setDisplayList(h, customDL);
+    ZProxyManager_pushDisplayList(h);
+    return h;
 }
 
 RECOMP_EXPORT bool ZModelReplacer_destroyReplacer(ZModelReplacerHandle handle) {
@@ -17,12 +19,8 @@ RECOMP_EXPORT bool ZModelReplacer_setReplacerModel(ZModelReplacerHandle handle, 
     return ZProxyManager_setDisplayList(handle, customDL);
 }
 
-RECOMP_EXPORT bool ZModelReplacer_pushReplacer(ZModelReplacerHandle handle) {
-    return ZProxyManager_pushDisplayList(handle);
-}
-
-RECOMP_EXPORT bool ZModelReplacer_removeReplacer(ZModelReplacerHandle handle) {
-    return ZProxyManager_removeDisplayList(handle);
+RECOMP_EXPORT bool ZModelReplacer_removeReplacerModel(ZModelReplacerHandle handle) {
+    return ZProxyManager_setDisplayList(handle, NULL);
 }
 
 RECOMP_DECLARE_EVENT(ZModelReplacer_onReady());
