@@ -8,9 +8,25 @@ typedef unsigned long ZModelReplacerHandle;
 
 #define YAZMT_Z64_MODEL_REPLACER_MOD_NAME "yazmt_mm_modelreplacer"
 
+// All calls to ZModelReplacer_registerReplacer must be done during a callback to the
+// ZModelReplacer_onRegisterReplacers event. This is a helper macro to declare that
+// event.
+//
+// The function signature for ZModelReplacer_onRegisterReplacers is a void function that
+// takes no arguments.
+//
+// Usage:
+// ZMODELREPLACER_CALLBACK_REGISTER_REPLACERS void myCallback() { ...; ZModelReplacer_registerReplacer(...); ... }
+#define ZMODELREPLACER_CALLBACK_REGISTER_REPLACERS RECOMP_CALLBACK(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ZModelReplacer_onRegisterReplacers)
+
 // Creates a Replacer and returns a handle to it
 //
 // Replacer handles are how your mod will interface with ModelReplacer, so hold onto it.
+//
+// Note that this function will only return a valid handle if the function creating it is
+// a callback function to the ZModelReplacer_onRegisterReplacers event. Otherwise, an
+// invalid handle will be returned, and no model replacement will occur. A macro for the
+// event has been provided above.
 //
 // Each Replacer is specific to a particular object and display list within that object, so
 // if you want to replace multiple display lists within an object, you will need a separate
@@ -24,17 +40,7 @@ typedef unsigned long ZModelReplacerHandle;
 // but have it retain its vanilla appearance at first (or via config), consider creating a
 // Replacer with a NULL customDL and using ZModelReplacer_setReplacerModel and
 // ZModelReplacer_removeReplacerModel as necessary on the handle returned by this function.
-RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ZModelReplacerHandle ZModelReplacer_createReplacer(ObjectId id, Gfx *vanillaDL, Gfx* customDL));
-
-// Destroys a Replacer
-//
-// Returns true if Replacer was destroyed, false if nothing happened.
-//
-// If you know for a fact you will never need a handle again, destroy it to avoid a memory leak.
-//
-// Though, if you just want to temporarily remove a model and add it back later, consider using
-// ZModelReplacer_removeReplacerModel and ZModelReplacer_setReplacerModel instead.
-RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, bool ZModelReplacer_destroyReplacer(ZModelReplacerHandle handle));
+RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ZModelReplacerHandle ZModelReplacer_registerReplacer(ObjectId id, Gfx *vanillaDL, Gfx* customDL));
 
 // Sets the display list inside the Replacer
 //
