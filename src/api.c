@@ -30,6 +30,7 @@ RECOMP_EXPORT bool ZModelReplacer_removeReplacerModel(ZModelReplacerHandle handl
 }
 
 RECOMP_DECLARE_EVENT(ZModelReplacer_onRegisterReplacers());
+RECOMP_DECLARE_EVENT(ZModelReplacer_onReady());
 
 RECOMP_CALLBACK(YAZMT_Z64_GLOBAL_OBJECTS_MOD_NAME, ZGlobalObj_onReady)
 void initZProxyManagerOnce() {
@@ -40,4 +41,6 @@ void initZProxyManagerOnce() {
     sIsRegistrationEnabled = true;
     ZModelReplacer_onRegisterReplacers();
     sIsRegistrationEnabled = false;
+
+    ZModelReplacer_onReady();
 }

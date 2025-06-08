@@ -19,6 +19,14 @@ typedef unsigned long ZModelReplacerHandle;
 // ZMODELREPLACER_CALLBACK_REGISTER_REPLACERS void myCallback() { ...; ZModelReplacer_registerReplacer(...); ... }
 #define ZMODELREPLACER_CALLBACK_REGISTER_REPLACERS RECOMP_CALLBACK(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ZModelReplacer_onRegisterReplacers)
 
+// Callback that runs after model replacer is initialized and all model registrations have ocurred.
+//
+// The function signature for ZModelReplacer_onReady is a void function that takes no arguments.
+//
+// Usage:
+// ZMODELREPLACER_CALLBACK_REGISTER_REPLACERS void myCallback() { ... }
+#define ZMODELREPLACER_CALLBACK_ON_READY RECOMP_CALLBACK(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ZModelReplacer_onReady)
+
 // Creates a Replacer and returns a handle to it
 //
 // Replacer handles are how your mod will interface with ModelReplacer, so hold onto it.
