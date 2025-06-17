@@ -187,7 +187,7 @@ void post_DmaMgr_RequestSync() {
                 ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(proxy->vanillaDLToCustomDLMap, vanilla);
 
                 if (container) {
-                    gSPBranchList((uintptr_t)gRam + SEGMENT_OFFSET(vanilla), &container->displayList);
+                    gSPBranchList(SEGMENTED_TO_GLOBAL_PTR(gRam, vanilla), &container->displayList);
                 }
 
                 curr = LinkedListNode_getNext(curr);
