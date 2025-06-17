@@ -176,7 +176,7 @@ void post_DmaMgr_RequestSync() {
         return;
     }
 
-    unsigned long id;
+    ObjectId id;
     if (ZGlobalObj_getObjectIdFromVrom(gVrom, &id)) {
         ZProxy *proxy = GET_ZPROXY(id);
         if (proxy) {
