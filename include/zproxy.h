@@ -6,7 +6,7 @@
 #include "z64object.h"
 #include "linkedlist.h"
 
-typedef collection_key_t ZModelReplacerHandle;
+typedef collection_key_t ModelReplacerHandle;
 
 typedef struct {
     ObjectId id;
@@ -31,11 +31,11 @@ void ZProxy_initZProxy(ZProxy *zProxy, ObjectId id, U32MemoryHashmapHandle custo
 
 void ZProxy_destroyZProxy(ZProxy *zProxy);
 
-bool ZProxy_refresh(ZProxy *this, ZModelReplacerHandle handle);
+bool ZProxy_refresh(ZProxy *this, ModelReplacerHandle handle);
 
-bool ZProxy_addCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle);
+bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle);
 
-bool ZProxy_removeCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle);
+bool ZProxy_removeCustomDisplayList(ZProxy *this, ModelReplacerHandle handle);
 
 bool ZProxy_reserveContainer(ZProxy *zProxy, Gfx *vanillaDisplayList);
 

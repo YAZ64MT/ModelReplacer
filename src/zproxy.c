@@ -42,7 +42,7 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
 
             LinkedList_initList(container->customDisplayListStack);
 
-            gSPBranchList(&container->displayList, ZGlobalObj_getGlobalGfxPtr(this->vanillaObjId, vanillaDisplayList));
+            gSPBranchList(&container->displayList, GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, vanillaDisplayList));
 
             return true;
         }
@@ -67,13 +67,13 @@ void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
     }
     
     if (!dl) {
-        dl = ZGlobalObj_getGlobalGfxPtr(this->vanillaObjId, c->vanillaDisplayList);
+        dl = GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, c->vanillaDisplayList);
     }
 
     gSPBranchList(&c->displayList, dl);
 }
 
-bool ZProxy_refresh(ZProxy *this, ZModelReplacerHandle handle) {
+bool ZProxy_refresh(ZProxy *this, ModelReplacerHandle handle) {
 
     ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
 
@@ -101,7 +101,7 @@ bool ZProxy_refresh(ZProxy *this, ZModelReplacerHandle handle) {
     return false;
 }
 
-bool ZProxy_addCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle) {
+bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle) {
     ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
 
     if (!entry) {
@@ -131,7 +131,7 @@ bool ZProxy_addCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle) {
     return false;
 }
 
-bool ZProxy_removeCustomDisplayList(ZProxy *this, ZModelReplacerHandle handle) {
+bool ZProxy_removeCustomDisplayList(ZProxy *this, ModelReplacerHandle handle) {
     ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
 
     if (!entry) {

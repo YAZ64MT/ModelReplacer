@@ -13,7 +13,7 @@ U32MemoryHashmapHandle gObjIdToProxyMap;
 // MemorySlotmaps seem to crash upon element creation?
 U32MemoryHashmapHandle gCustomDisplayListEntries;
 
-ZModelReplacerHandle gNextCustomHandle = 1;
+ModelReplacerHandle gNextCustomHandle = 1;
 
 #define IS_ZPROXY_EXIST(objId) (recomputil_u32_memory_hashmap_contains(gObjIdToProxyMap, objId))
 #define GET_ZPROXY(objId) (recomputil_u32_memory_hashmap_get(gObjIdToProxyMap, objId))
@@ -42,7 +42,7 @@ bool ZProxyManager_registerZProxy(ObjectId id) {
             // get the non-proxy'd vanilla model into rdram
             ZProxyManager_disableModelInject();
 
-            ZGlobalObj_getGlobalObject(id);
+            GlobalObjects_getGlobalObject(id);
 
             ZProxyManager_enableModelInject();
 
@@ -64,14 +64,14 @@ bool ZProxyManager_unregisterZProxy(ObjectId id) {
     return false;
 }
 
-ZModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vanillaDL) {
+ModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vanillaDL) {
     if (!isSegmentedPtr(vanillaDL)) {
         return false;
     }
 
     ZProxyManager_registerZProxy(id);
 
-    ZModelReplacerHandle handle = gNextCustomHandle;
+    ModelReplacerHandle handle = gNextCustomHandle;
     gNextCustomHandle++;
 
     recomputil_u32_memory_hashmap_create(gCustomDisplayListEntries, handle);
@@ -87,7 +87,7 @@ ZModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *van
     return handle;
 }
 
-bool ZProxyManager_destroyDisplayListHandle(ZModelReplacerHandle handle) {
+bool ZProxyManager_destroyDisplayListHandle(ModelReplacerHandle handle) {
     ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
 
     if (!entry) {
@@ -101,7 +101,7 @@ bool ZProxyManager_destroyDisplayListHandle(ZModelReplacerHandle handle) {
     return recomputil_memory_slotmap_erase(gCustomDisplayListEntries, handle);
 }
 
-bool ZProxyManager_setDisplayList(ZModelReplacerHandle handle, Gfx *customDL) {
+bool ZProxyManager_setDisplayList(ModelReplacerHandle handle, Gfx *customDL) {
     if (customDL != NULL && isSegmentedPtr(customDL)) {
         return false;
     }
@@ -123,7 +123,7 @@ bool ZProxyManager_setDisplayList(ZModelReplacerHandle handle, Gfx *customDL) {
     return true;
 }
 
-bool ZProxyManager_pushDisplayList(ZModelReplacerHandle handle) {
+bool ZProxyManager_pushDisplayList(ModelReplacerHandle handle) {
     ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
 
     if (!entry) {
@@ -137,7 +137,7 @@ bool ZProxyManager_pushDisplayList(ZModelReplacerHandle handle) {
     return ZProxy_addCustomDisplayList(proxy, handle);
 }
 
-bool ZProxyManager_removeDisplayList(ZModelReplacerHandle handle) {
+bool ZProxyManager_removeDisplayList(ModelReplacerHandle handle) {
     ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
 
     if (!entry) {
@@ -177,7 +177,7 @@ void post_DmaMgr_RequestSync() {
     }
 
     ObjectId id;
-    if (ZGlobalObj_getObjectIdFromVrom(gVrom, &id)) {
+    if (GlobalObjects_getObjectIdFromVrom(gVrom, &id)) {
         ZProxy *proxy = GET_ZPROXY(id);
         if (proxy) {
             LinkedListNode *curr = LinkedList_start(proxy->vanillaDisplayLists);

@@ -10,15 +10,15 @@ bool ZProxyManager_registerZProxy(ObjectId id);
 
 bool ZProxyManager_unregisterZProxy(ObjectId id);
 
-ZModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vanillaDL);
+ModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vanillaDL);
 
-bool ZProxyManager_destroyDisplayListHandle(ZModelReplacerHandle handle);
+bool ZProxyManager_destroyDisplayListHandle(ModelReplacerHandle handle);
 
 bool ZProxyManager_setDisplayList(collection_key_t handle, Gfx *customDL);
 
-bool ZProxyManager_pushDisplayList(ZModelReplacerHandle handle);
+bool ZProxyManager_pushDisplayList(ModelReplacerHandle handle);
 
-bool ZProxyManager_removeDisplayList(ZModelReplacerHandle handle);
+bool ZProxyManager_removeDisplayList(ModelReplacerHandle handle);
 
 void ZProxyManager_enableModelInject();
 
