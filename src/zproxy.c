@@ -51,6 +51,8 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
     return false;
 }
 
+RECOMP_DECLARE_EVENT(onModelChange(ObjectId id, Gfx *vanillaDL, Gfx *newDL))
+
 void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
     Gfx *dl = NULL;
 
@@ -70,7 +72,10 @@ void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
         dl = GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, c->vanillaDisplayList);
     }
 
-    gSPBranchList(&c->displayList, dl);
+    if ((uintptr_t)dl != c->displayList.words.w1) {
+        gSPBranchList(&c->displayList, dl);
+        onModelChange(this->vanillaObjId, c->vanillaDisplayList, dl);
+    }
 }
 
 bool ZProxy_refresh(ZProxy *this, ModelReplacerHandle handle) {
