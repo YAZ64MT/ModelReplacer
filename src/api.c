@@ -29,6 +29,7 @@ RECOMP_EXPORT bool ModelReplacer_removeReplacerModel(ModelReplacerHandle handle)
     return ZProxyManager_setDisplayList(handle, NULL);
 }
 
+RECOMP_DECLARE_EVENT(onBeforeRegisterReplacers());
 RECOMP_DECLARE_EVENT(onRegisterReplacers());
 RECOMP_DECLARE_EVENT(onReady());
 
@@ -37,6 +38,8 @@ void initZProxyManagerOnce() {
     ZProxyManager_initManager();
 
     ZProxyManager_enableModelInject();
+
+    onBeforeRegisterReplacers();
 
     sIsRegistrationEnabled = true;
     onRegisterReplacers();
