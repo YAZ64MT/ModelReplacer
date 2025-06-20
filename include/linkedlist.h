@@ -13,7 +13,7 @@ void *LinkedListNode_getData(LinkedListNode *n);
 
 typedef struct LinkedList LinkedList;
 
-void LinkedList_initList(LinkedList *list);
+LinkedList *LinkedList_newList();
 
 void LinkedList_destroyList(LinkedList *list);
 

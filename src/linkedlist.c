@@ -101,6 +101,16 @@ void LinkedList_initList(LinkedList *list) {
     list->dataToNodes = recomputil_create_u32_memory_hashmap(sizeof(LinkedListNode));
 }
 
+LinkedList *LinkedList_newList() {
+    LinkedList *list = recomp_alloc(sizeof(LinkedList));
+
+    if (list) {
+        LinkedList_initList(list);
+    }
+
+    return list;
+}
+
 bool LinkedList_isEmpty(LinkedList *list) {
     return list->start == NULL;
 }

@@ -8,11 +8,9 @@ void ZProxy_initZProxy(ZProxy *this, ObjectId id, U32MemoryHashmapHandle customD
 
     this->vanillaDLToCustomDLMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_ProxyContainer));
     
-    this->vanillaDisplayLists = recomp_alloc(sizeof(LinkedList *));
+    this->vanillaDisplayLists = LinkedList_newList();
 
     this->customDisplayLists = customDisplayListMap;
-
-    LinkedList_initList(this->vanillaDisplayLists);
 }
 
 void ZProxy_destroyZProxy(ZProxy *this) {
@@ -38,9 +36,7 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
 
             container->vanillaDisplayList = vanillaDisplayList;
 
-            container->customDisplayListStack = recomp_alloc(sizeof(LinkedList *));
-
-            LinkedList_initList(container->customDisplayListStack);
+            container->customDisplayListStack = LinkedList_newList();
 
             gSPBranchList(&container->displayList, GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, vanillaDisplayList));
 
