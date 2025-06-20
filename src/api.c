@@ -9,7 +9,7 @@ static bool sIsRegistrationEnabled = false;
 RECOMP_EXPORT ModelReplacerHandle ModelReplacer_registerReplacer(ObjectId id, Gfx *vanillaDL, Gfx *customDL) {
     if (!sIsRegistrationEnabled) {
         const char *REGISTER_OUTSIDE_OF_CALLBACK_WARNING =
-            "ModelReplacer: Called ModelReplacer_registerReplacer outside of ModelReplacer_onRegisterReplacers callback! "
+            "ModelReplacer: Called ModelReplacer_registerReplacer outside of onRegisterReplacers callback! "
             "Please move your call to ModelReplacer_registerReplacer into a callback function for this event.";
         recomp_printf(REGISTER_OUTSIDE_OF_CALLBACK_WARNING);
         return 0;
