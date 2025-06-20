@@ -3,7 +3,12 @@
 #include "zproxy.h"
 #include "globalobjects_api.h"
 
-void ZProxy_initZProxy(ZProxy *this, ObjectId id, U32MemoryHashmapHandle customDisplayListMap) {
+static Gfx sSetBilerpDL[] = {
+    gsDPSetTextureFilter(G_TF_BILERP),
+    gsSPEndDisplayList(),
+};
+
+void ZProxy_initZProxy(ZProxy * this, ObjectId id, U32MemoryHashmapHandle customDisplayListMap) {
     this->vanillaObjId = id;
 
     this->vanillaDLToCustomDLMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_ProxyContainer));
@@ -38,7 +43,10 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
 
             container->customDisplayListStack = LinkedList_newList();
 
-            gSPBranchList(&container->displayList, GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, vanillaDisplayList));
+            gSPDisplayList(&container->displayList[0], GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, vanillaDisplayList));
+
+            // Vanilla 3D models use G_TF_BILERP in all cases, so change this back in case a mod set a different filtering mode
+            gSPBranchList(&container[1], sSetBilerpDL);
 
             return true;
         }
@@ -68,8 +76,8 @@ void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
         dl = GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, c->vanillaDisplayList);
     }
 
-    if ((uintptr_t)dl != c->displayList.words.w1) {
-        gSPBranchList(&c->displayList, dl);
+    if ((uintptr_t)dl != c->displayList[0].words.w1) {
+        gSPDisplayList(&c->displayList[0], dl);
         onModelChange(this->vanillaObjId, c->vanillaDisplayList, dl);
     }
 }

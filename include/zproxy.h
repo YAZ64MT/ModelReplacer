@@ -17,7 +17,7 @@ typedef struct {
 typedef struct {
     LinkedList* customDisplayListStack;
     Gfx* vanillaDisplayList;
-    Gfx displayList;
+    Gfx displayList[2];
 } ZProxy_ProxyContainer;
 
 typedef struct {
