@@ -18,12 +18,10 @@ dependencies = [
 
 Look at the header itself for function names and what they do.
 
-This mod initializes itself fairly early in the boot process, so it should be safe to call its functions at most times after the game boots. Call them too early though, and this mod breaks. So, an event named `ModelReplacer_onReady` that is guaranteed to run right after the model replacer initializes itself has been added. The expected function takes no arguments and can be added as follows:
-
+Model replacements must be registered during the onRegisterReplacers callback. A macro has been added for this. Even if you only want to replace a model later, you must register it during this callback.
 ```c
-RECOMP_CALLBACK(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ModelReplacer_onReady)
-void my_cool_function() {
-    // do something
+MODEL_REPLACER_CALLBACK_ON_REGISTER_REPLACERS void my_callback() {
+    ModelReplacer_registerReplacer(...);
 }
 ```
 
