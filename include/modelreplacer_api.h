@@ -40,14 +40,13 @@ typedef unsigned long ModelReplacerHandle;
 // if you want to replace multiple display lists within an object, you will need a separate
 // Replacer for each display list.
 //
-// The most recently created Replacer is given priority over previously created Replacers for
-// a given vanilla object's display List. Only the Replacer with the highest priority and a
-// non-NULL custom display list will be drawn.
+// In MM Recomp version 1.2.1 and greater, models higher in the mod list take priority over
+// models lower in the list. If the mod with higher priority has a NULL display list, then
+// the custom model below it will be drawn instead. If all custom models are null, then the
+// vanilla model will be used.
 //
-// Setting a NULL display list is a good way to reserve a slot. If you want to replace a model
-// but have it retain its vanilla appearance at first (or via config), consider creating a
-// Replacer with a NULL customDL and using ModelReplacer_setReplacerModel and
-// ModelReplacer_removeReplacerModel as necessary on the handle returned by this function.
+// If you only wish to create a Replacer handle but not immediately replace the display list,
+// pass in NULL as the customDL argument.
 RECOMP_IMPORT(YAZMT_Z64_MODEL_REPLACER_MOD_NAME, ModelReplacerHandle ModelReplacer_registerReplacer(ObjectId id, Gfx *vanillaDL, Gfx* customDL));
 
 // Sets the display list inside the Replacer
