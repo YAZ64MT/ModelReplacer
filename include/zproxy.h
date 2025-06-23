@@ -4,7 +4,7 @@
 #include "global.h"
 #include "recompdata.h"
 #include "z64object.h"
-#include "linkedlist.h"
+#include "dynu32array.h"
 
 typedef collection_key_t ModelReplacerHandle;
 
@@ -15,7 +15,7 @@ typedef struct {
 } ZProxy_CustomDisplayListEntry;
 
 typedef struct {
-    LinkedList* customDisplayListStack;
+    DynamicU32Array customDisplayListStack;
     Gfx* vanillaDisplayList;
     Gfx displayList[2];
 } ZProxy_ProxyContainer;
@@ -23,7 +23,7 @@ typedef struct {
 typedef struct {
     ObjectId vanillaObjId;
     U32MemoryHashmapHandle vanillaDLToCustomDLMap;
-    LinkedList* vanillaDisplayLists;
+    DynamicU32Array vanillaDisplayLists;
     U32MemoryHashmapHandle customDisplayLists;
 } ZProxy;
 

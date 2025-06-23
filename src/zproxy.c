@@ -12,15 +12,13 @@ void ZProxy_initZProxy(ZProxy * this, ObjectId id, U32MemoryHashmapHandle custom
     this->vanillaObjId = id;
 
     this->vanillaDLToCustomDLMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_ProxyContainer));
-    
-    this->vanillaDisplayLists = LinkedList_newList();
 
     this->customDisplayLists = customDisplayListMap;
 }
 
 void ZProxy_destroyZProxy(ZProxy *this) {
     recomputil_destroy_u32_memory_hashmap(this->vanillaDLToCustomDLMap);
-    recomp_free(this->vanillaDisplayLists);
+    DynU32Arr_destroyMembers(&this->vanillaDisplayLists);
 }
 
 bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
@@ -35,18 +33,16 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
     if (!container) {
         if (recomputil_u32_memory_hashmap_create(this->vanillaDLToCustomDLMap, vanilla)) {
 
-            LinkedList_addBack(this->vanillaDisplayLists, vanillaDisplayList);
+            DynU32Arr_push(&this->vanillaDisplayLists, (uintptr_t)vanillaDisplayList);
 
             container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
 
             container->vanillaDisplayList = vanillaDisplayList;
 
-            container->customDisplayListStack = LinkedList_newList();
-
             gSPDisplayList(&container->displayList[0], GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, vanillaDisplayList));
 
             // Vanilla 3D models use G_TF_BILERP in all cases, so change this back in case a mod set a different filtering mode
-            gSPBranchList(&container[1], sSetBilerpDL);
+            gSPBranchList(&container->displayList[1], sSetBilerpDL);
 
             return true;
         }
@@ -60,16 +56,12 @@ RECOMP_DECLARE_EVENT(onModelChange(ObjectId id, Gfx *vanillaDL, Gfx *newDL))
 void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
     Gfx *dl = NULL;
 
-    LinkedListNode *curr = LinkedList_end(c->customDisplayListStack);
-
-    while(curr && !dl) {
-        ZProxy_CustomDisplayListEntry *entry = LinkedListNode_getData(curr);
+    for (size_t i = 0; i < c->customDisplayListStack.count && !dl; ++i) {
+        ZProxy_CustomDisplayListEntry *entry = (ZProxy_CustomDisplayListEntry *)c->customDisplayListStack.data[i];
 
         if (entry) {
             dl = entry->customDL;
         }
-
-        curr = LinkedListNode_getPrev(curr);
     }
     
     if (!dl) {
@@ -132,12 +124,10 @@ bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle) {
     ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
 
     if (container) {
-        LinkedList_addBack(container->customDisplayListStack, entry);
+        DynU32Arr_push(&container->customDisplayListStack, (uintptr_t)entry);
         refreshContainerDL(this, container);
         return true;
     }
 
     return false;
 }
-
-
