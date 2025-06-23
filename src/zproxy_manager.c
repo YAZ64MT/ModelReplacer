@@ -87,20 +87,6 @@ ModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vani
     return handle;
 }
 
-bool ZProxyManager_destroyDisplayListHandle(ModelReplacerHandle handle) {
-    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
-
-    if (!entry) {
-        return false;
-    }
-
-    ZProxy *proxy = GET_ZPROXY(entry->id);
-
-    ZProxy_removeCustomDisplayList(proxy, handle);
-
-    return recomputil_memory_slotmap_erase(gCustomDisplayListEntries, handle);
-}
-
 bool ZProxyManager_setDisplayList(ModelReplacerHandle handle, Gfx *customDL) {
     if (customDL != NULL && isSegmentedPtr(customDL)) {
         return false;

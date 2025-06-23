@@ -12,8 +12,6 @@ bool ZProxyManager_unregisterZProxy(ObjectId id);
 
 ModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vanillaDL);
 
-bool ZProxyManager_destroyDisplayListHandle(ModelReplacerHandle handle);
-
 bool ZProxyManager_setDisplayList(ModelReplacerHandle handle, Gfx *customDL);
 
 bool ZProxyManager_pushDisplayList(ModelReplacerHandle handle);
