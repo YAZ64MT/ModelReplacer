@@ -16,8 +16,6 @@ bool ZProxyManager_setDisplayList(ModelReplacerHandle handle, Gfx *customDL);
 
 bool ZProxyManager_pushDisplayList(ModelReplacerHandle handle);
 
-bool ZProxyManager_removeDisplayList(ModelReplacerHandle handle);
-
 void ZProxyManager_enableModelInject();
 
 void ZProxyManager_disableModelInject();

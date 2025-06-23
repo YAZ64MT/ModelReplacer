@@ -123,20 +123,6 @@ bool ZProxyManager_pushDisplayList(ModelReplacerHandle handle) {
     return ZProxy_addCustomDisplayList(proxy, handle);
 }
 
-bool ZProxyManager_removeDisplayList(ModelReplacerHandle handle) {
-    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
-
-    if (!entry) {
-        return false;
-    }
-
-    ZProxyManager_registerZProxy(entry->id);
-
-    ZProxy *proxy = GET_ZPROXY(entry->id);
-
-    return ZProxy_removeCustomDisplayList(proxy, handle);
-}
-
 void ZProxyManager_enableModelInject() {
     gIsProxyLoaderisEnabled = true;
 }
