@@ -14,7 +14,7 @@ ModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vani
 
 bool ZProxyManager_destroyDisplayListHandle(ModelReplacerHandle handle);
 
-bool ZProxyManager_setDisplayList(collection_key_t handle, Gfx *customDL);
+bool ZProxyManager_setDisplayList(ModelReplacerHandle handle, Gfx *customDL);
 
 bool ZProxyManager_pushDisplayList(ModelReplacerHandle handle);
 
