@@ -140,31 +140,4 @@ bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle) {
     return false;
 }
 
-bool ZProxy_removeCustomDisplayList(ZProxy *this, ModelReplacerHandle handle) {
-    ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
 
-    if (!entry) {
-        return false;
-    }
-
-    Gfx *vanillaDisplayList = entry->vanillaDL;
-
-    Gfx *customDisplayList = entry->customDL;
-
-    ZProxy_reserveContainer(this, vanillaDisplayList);
-
-    if (!customDisplayList || !vanillaDisplayList) {
-        return false;
-    }
-
-    uintptr_t vanilla = (uintptr_t)vanillaDisplayList;
-
-    ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
-
-    if (container && LinkedList_removeData(container->customDisplayListStack, entry)) {
-        refreshContainerDL(this, container);
-        return true;
-    }
-
-    return false;
-}

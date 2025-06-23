@@ -35,8 +35,6 @@ bool ZProxy_refresh(ZProxy *this, ModelReplacerHandle handle);
 
 bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle);
 
-bool ZProxy_removeCustomDisplayList(ZProxy *this, ModelReplacerHandle handle);
-
 bool ZProxy_reserveContainer(ZProxy *zProxy, Gfx *vanillaDisplayList);
 
 #endif
