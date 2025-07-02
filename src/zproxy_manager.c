@@ -142,6 +142,13 @@ void on_DmaMgr_RequestSync(DmaRequest *req) {
     gSize = req->size;
 }
 
+extern Gfx object_link_child_DL_017818[]; // bow string
+
+Gfx sBowStringWrapperDL[] = {
+    gsSPNoOp(), // space for replacement DL
+    gsSPBranchList(object_link_child_DL_017818 + 2), // continue drawing bowstring
+};
+
 RECOMP_HOOK_RETURN("DmaMgr_ProcessRequest")
 void post_DmaMgr_RequestSync() {
     if (!gIsProxyLoaderisEnabled) {
@@ -158,7 +165,16 @@ void post_DmaMgr_RequestSync() {
                 ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(proxy->vanillaDLToCustomDLMap, vanilla);
 
                 if (container) {
-                    gSPBranchList(SEGMENTED_TO_GLOBAL_PTR(gRam, vanilla), &container->displayList);
+                    if (vanilla != (uintptr_t)object_link_child_DL_017818 || id != OBJECT_LINK_CHILD) {
+                        gSPBranchList(SEGMENTED_TO_GLOBAL_PTR(gRam, vanilla), &container->displayList);
+                    } else {
+                        // Allows replaced DL to inherit bow string interpolation from recomp
+                        gSPBranchList(sBowStringWrapperDL, &container->displayList);
+
+                        Gfx *bowString = SEGMENTED_TO_GLOBAL_PTR(gRam, vanilla);
+                        gSPBranchList(bowString + 1, sBowStringWrapperDL);
+                        gSPEndDisplayList(bowString + 2);
+                    }
                 }
             }
         }
