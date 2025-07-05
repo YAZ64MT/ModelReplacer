@@ -144,8 +144,8 @@ void on_DmaMgr_RequestSync(DmaRequest *req) {
 
 extern Gfx object_link_child_DL_017818[]; // bow string
 
-Gfx sBowStringWrapperDL[] = {
-    gsSPNoOp(), // space for replacement DL
+static Gfx sBowStringWrapperDL[] = {
+    gsSPNoOp(),                                      // space for replacement DL
     gsSPBranchList(object_link_child_DL_017818 + 2), // continue drawing bowstring
 };
 
