@@ -20,4 +20,6 @@ void ZProxyManager_enableModelInject();
 
 void ZProxyManager_disableModelInject();
 
+ZProxy_CustomDisplayListEntry *ZProxyManager_getCustomEntry(ModelReplacerHandle h);
+
 #endif

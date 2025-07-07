@@ -24,17 +24,16 @@ typedef struct {
     ObjectId vanillaObjId;
     U32MemoryHashmapHandle vanillaDLToCustomDLMap;
     DynamicU32Array vanillaDisplayLists;
-    U32MemoryHashmapHandle customDisplayLists;
 } ZProxy;
 
-void ZProxy_initZProxy(ZProxy *zProxy, ObjectId id, U32MemoryHashmapHandle custocustomDisplayListMap);
+void ZProxy_initZProxy(ZProxy *zp, ObjectId id);
 
-void ZProxy_destroyZProxy(ZProxy *zProxy);
+void ZProxy_destroyZProxy(ZProxy *zp);
 
-bool ZProxy_refresh(ZProxy *this, ModelReplacerHandle handle);
+bool ZProxy_refresh(ZProxy *zp, ModelReplacerHandle handle);
 
-bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle);
+bool ZProxy_addCustomDisplayList(ZProxy *zp, ModelReplacerHandle handle);
 
-bool ZProxy_reserveContainer(ZProxy *zProxy, Gfx *vanillaDisplayList);
+bool ZProxy_reserveContainer(ZProxy *zp, Gfx *vanillaDisplayList);
 
 #endif

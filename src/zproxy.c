@@ -1,6 +1,7 @@
 #include "global.h"
 #include "recomputils.h"
 #include "zproxy.h"
+#include "zproxy_manager.h"
 #include "globalobjects_api.h"
 
 static Gfx sSetBilerpDL[] = {
@@ -8,38 +9,36 @@ static Gfx sSetBilerpDL[] = {
     gsSPEndDisplayList(),
 };
 
-void ZProxy_initZProxy(ZProxy * this, ObjectId id, U32MemoryHashmapHandle customDisplayListMap) {
-    this->vanillaObjId = id;
+void ZProxy_initZProxy(ZProxy *zp, ObjectId id) {
+    zp->vanillaObjId = id;
 
-    this->vanillaDLToCustomDLMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_ProxyContainer));
-
-    this->customDisplayLists = customDisplayListMap;
+    zp->vanillaDLToCustomDLMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_ProxyContainer));
 }
 
-void ZProxy_destroyZProxy(ZProxy *this) {
-    recomputil_destroy_u32_memory_hashmap(this->vanillaDLToCustomDLMap);
-    DynU32Arr_destroyMembers(&this->vanillaDisplayLists);
+void ZProxy_destroyZProxy(ZProxy *zp) {
+    recomputil_destroy_u32_memory_hashmap(zp->vanillaDLToCustomDLMap);
+    DynU32Arr_destroyMembers(&zp->vanillaDisplayLists);
 }
 
-bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
+bool ZProxy_reserveContainer(ZProxy *zp, Gfx *vanillaDisplayList) {
     if (!vanillaDisplayList) {
         return false;
     }
 
     u32 vanilla = (uintptr_t)vanillaDisplayList;
 
-    ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
+    ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(zp->vanillaDLToCustomDLMap, vanilla);
 
     if (!container) {
-        if (recomputil_u32_memory_hashmap_create(this->vanillaDLToCustomDLMap, vanilla)) {
+        if (recomputil_u32_memory_hashmap_create(zp->vanillaDLToCustomDLMap, vanilla)) {
 
-            DynU32Arr_push(&this->vanillaDisplayLists, (uintptr_t)vanillaDisplayList);
+            DynU32Arr_push(&zp->vanillaDisplayLists, (uintptr_t)vanillaDisplayList);
 
-            container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
+            container = recomputil_u32_memory_hashmap_get(zp->vanillaDLToCustomDLMap, vanilla);
 
             container->vanillaDisplayList = vanillaDisplayList;
 
-            gSPDisplayList(&container->displayList[0], GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, vanillaDisplayList));
+            gSPDisplayList(&container->displayList[0], GlobalObjects_getGlobalGfxPtr(zp->vanillaObjId, vanillaDisplayList));
 
             // Vanilla 3D models use G_TF_BILERP in all cases, so change this back in case a mod set a different filtering mode
             gSPBranchList(&container->displayList[1], sSetBilerpDL);
@@ -53,7 +52,7 @@ bool ZProxy_reserveContainer(ZProxy *this, Gfx *vanillaDisplayList) {
 
 RECOMP_DECLARE_EVENT(onModelChange(ObjectId id, Gfx *vanillaDL, Gfx *newDL))
 
-void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
+void refreshContainerDL(ZProxy *zp, ZProxy_ProxyContainer *c) {
     Gfx *dl = NULL;
 
     for (size_t i = 0; i < c->customDisplayListStack.count && !dl; ++i) {
@@ -63,20 +62,20 @@ void refreshContainerDL(ZProxy *this, ZProxy_ProxyContainer *c) {
             dl = entry->customDL;
         }
     }
-    
+
     if (!dl) {
-        dl = GlobalObjects_getGlobalGfxPtr(this->vanillaObjId, c->vanillaDisplayList);
+        dl = GlobalObjects_getGlobalGfxPtr(zp->vanillaObjId, c->vanillaDisplayList);
     }
 
     if ((uintptr_t)dl != c->displayList[0].words.w1) {
         gSPDisplayList(&c->displayList[0], dl);
-        onModelChange(this->vanillaObjId, c->vanillaDisplayList, dl);
+        onModelChange(zp->vanillaObjId, c->vanillaDisplayList, dl);
     }
 }
 
-bool ZProxy_refresh(ZProxy *this, ModelReplacerHandle handle) {
+bool ZProxy_refresh(ZProxy *zp, ModelReplacerHandle handle) {
 
-    ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
+    ZProxy_CustomDisplayListEntry *entry = ZProxyManager_getCustomEntry(handle);
 
     if (!entry) {
         return false;
@@ -84,7 +83,7 @@ bool ZProxy_refresh(ZProxy *this, ModelReplacerHandle handle) {
 
     Gfx *vanillaDisplayList = entry->vanillaDL;
 
-    ZProxy_reserveContainer(this, vanillaDisplayList);
+    ZProxy_reserveContainer(zp, vanillaDisplayList);
 
     if (!vanillaDisplayList) {
         return false;
@@ -92,18 +91,18 @@ bool ZProxy_refresh(ZProxy *this, ModelReplacerHandle handle) {
 
     uintptr_t vanilla = (uintptr_t)vanillaDisplayList;
 
-    ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
+    ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(zp->vanillaDLToCustomDLMap, vanilla);
 
     if (container) {
-        refreshContainerDL(this, container);
+        refreshContainerDL(zp, container);
         return true;
     }
 
     return false;
 }
 
-bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle) {
-    ZProxy_CustomDisplayListEntry *entry = recomputil_u32_memory_hashmap_get(this->customDisplayLists, handle);
+bool ZProxy_addCustomDisplayList(ZProxy *zp, ModelReplacerHandle handle) {
+    ZProxy_CustomDisplayListEntry *entry = ZProxyManager_getCustomEntry(handle);
 
     if (!entry) {
         return false;
@@ -113,7 +112,7 @@ bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle) {
 
     Gfx *customDisplayList = entry->customDL;
 
-    ZProxy_reserveContainer(this, vanillaDisplayList);
+    ZProxy_reserveContainer(zp, vanillaDisplayList);
 
     if (!vanillaDisplayList) {
         return false;
@@ -121,11 +120,11 @@ bool ZProxy_addCustomDisplayList(ZProxy *this, ModelReplacerHandle handle) {
 
     uintptr_t vanilla = (uintptr_t)vanillaDisplayList;
 
-    ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(this->vanillaDLToCustomDLMap, vanilla);
+    ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(zp->vanillaDLToCustomDLMap, vanilla);
 
     if (container) {
         DynU32Arr_push(&container->customDisplayListStack, (uintptr_t)entry);
-        refreshContainerDL(this, container);
+        refreshContainerDL(zp, container);
         return true;
     }
 

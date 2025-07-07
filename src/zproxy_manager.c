@@ -9,19 +9,23 @@ bool gIsProxyLoaderisEnabled = false;
 
 U32MemoryHashmapHandle gObjIdToProxyMap;
 
-// TODO: Replace this with a MemorySlotapHandle
-// MemorySlotmaps seem to crash upon element creation?
-U32MemoryHashmapHandle gCustomDisplayListEntries;
-
-ModelReplacerHandle gNextCustomHandle = 1;
+MemorySlotmapHandle gCustomDisplayListEntries;
 
 #define IS_ZPROXY_EXIST(objId) (recomputil_u32_memory_hashmap_contains(gObjIdToProxyMap, objId))
 #define GET_ZPROXY(objId) (recomputil_u32_memory_hashmap_get(gObjIdToProxyMap, objId))
 #define CREATE_ZPROXY_ENTRY(objId) (recomputil_u32_memory_hashmap_create(gObjIdToProxyMap, objId))
 #define REMOVE_ZPROXY_ENTRY(objId) (recomputil_u32_memory_hashmap_erase(gObjIdToProxyMap, objId))
 
-#define GET_CUSTOM_ENTRY(handle) (recomputil_u32_memory_hashmap_get(gCustomDisplayListEntries, handle))
-#define REMOVE_CUSTOM_ENTRY(handle) (recomputil_u32_memory_hashmap_erase(gCustomDisplayListEntries, handle))
+void *slotmapGet(MemorySlotmapHandle slotmap, collection_key_t k) {
+    void *result = NULL;
+
+    recomputil_memory_slotmap_get(slotmap, k, &result);
+
+    return result;
+}
+
+#define GET_CUSTOM_ENTRY(handle) (slotmapGet(gCustomDisplayListEntries, handle))
+#define REMOVE_CUSTOM_ENTRY(handle) (recomputil_memory_slotmap_erase(gCustomDisplayListEntries, handle))
 
 bool isSegmentedPtr(void *p) {
     return ((uintptr_t)p >> 24) <= 0xF;
@@ -29,7 +33,11 @@ bool isSegmentedPtr(void *p) {
 
 void ZProxyManager_initManager() {
     gObjIdToProxyMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy));
-    gCustomDisplayListEntries = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_CustomDisplayListEntry));
+    gCustomDisplayListEntries = recomputil_create_memory_slotmap(sizeof(ZProxy_CustomDisplayListEntry));
+}
+
+ZProxy_CustomDisplayListEntry *ZProxyManager_getCustomEntry(ModelReplacerHandle h) {
+    return GET_CUSTOM_ENTRY(h);
 }
 
 bool ZProxyManager_registerZProxy(ObjectId id) {
@@ -37,7 +45,7 @@ bool ZProxyManager_registerZProxy(ObjectId id) {
         ZProxy *proxy = GET_ZPROXY(id);
 
         if (proxy) {
-            ZProxy_initZProxy(proxy, id, gCustomDisplayListEntries);
+            ZProxy_initZProxy(proxy, id);
 
             // get the non-proxy'd vanilla model into rdram
             ZProxyManager_disableModelInject();
@@ -71,12 +79,9 @@ ModelReplacerHandle ZProxyManager_createDisplayListHandle(ObjectId id, Gfx *vani
 
     ZProxyManager_registerZProxy(id);
 
-    ModelReplacerHandle handle = gNextCustomHandle;
-    gNextCustomHandle++;
+    ModelReplacerHandle handle = recomputil_memory_slotmap_create(gCustomDisplayListEntries);
 
-    recomputil_u32_memory_hashmap_create(gCustomDisplayListEntries, handle);
-
-    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
+    ZProxy_CustomDisplayListEntry *entry = ZProxyManager_getCustomEntry(handle);
 
     entry->id = id;
 
@@ -92,7 +97,7 @@ bool ZProxyManager_setDisplayList(ModelReplacerHandle handle, Gfx *customDL) {
         return false;
     }
 
-    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
+    ZProxy_CustomDisplayListEntry *entry = ZProxyManager_getCustomEntry(handle);
 
     if (!entry) {
         return false;
@@ -110,7 +115,7 @@ bool ZProxyManager_setDisplayList(ModelReplacerHandle handle, Gfx *customDL) {
 }
 
 bool ZProxyManager_pushDisplayList(ModelReplacerHandle handle) {
-    ZProxy_CustomDisplayListEntry *entry = GET_CUSTOM_ENTRY(handle);
+    ZProxy_CustomDisplayListEntry *entry = ZProxyManager_getCustomEntry(handle);
 
     if (!entry) {
         return false;
