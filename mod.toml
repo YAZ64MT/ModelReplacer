@@ -18,8 +18,7 @@ description =  """
 This is an API mod for Majora's Mask: Recompiled that can be used to easily replace vanilla models by injecting \
 the models as objects are loaded into the game.
 
-In MM Recomp 1.2.1 and greater, if two mods try to replace the same model, the mod HIGHER in the mod list takes \
-priority. In 1.2.0, which model is prioritized cannot be explicitly configured."""
+If two mods try to replace the same model, the mod HIGHER in the mod list takes priority."""
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
 # to prevent it from being cut off due to the limited space.
