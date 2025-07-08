@@ -37,7 +37,8 @@ minimum_recomp_version = "1.2.1"
 dependencies = [
 # Example dependency:
 #    "modname:1.0.0"
-    "yazmt_mm_global_objects:0.1.0"
+    "yazmt_mm_global_objects:0.1.0",
+    "yazmt_mm_corelib",
 ]
 
 # Native libraries (e.g. DLLs) and the functions they export.
