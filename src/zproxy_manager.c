@@ -164,8 +164,11 @@ void post_DmaMgr_RequestSync() {
     if (GlobalObjects_getObjectIdFromVrom(gVrom, &id)) {
         ZProxy *proxy = GET_ZPROXY(id);
         if (proxy) {
-            for (size_t i = 0; i < proxy->vanillaDisplayLists.count; ++i) {
-                uintptr_t vanilla = proxy->vanillaDisplayLists.data[i];
+            size_t size = YAZMTCore_DynamicU32Array_size(proxy->vanillaDisplayLists);
+            u32 *data = YAZMTCore_DynamicU32Array_data(proxy->vanillaDisplayLists);
+
+            for (size_t i = 0; i < size; ++i) {
+                uintptr_t vanilla = data[i];
 
                 ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(proxy->vanillaDLToCustomDLMap, vanilla);
 

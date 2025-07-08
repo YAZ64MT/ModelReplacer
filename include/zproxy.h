@@ -4,7 +4,7 @@
 #include "global.h"
 #include "recompdata.h"
 #include "z64object.h"
-#include "dynu32array.h"
+#include "yazmtcorelib_api.h"
 
 typedef collection_key_t ModelReplacerHandle;
 
@@ -15,7 +15,7 @@ typedef struct {
 } ZProxy_CustomDisplayListEntry;
 
 typedef struct {
-    DynamicU32Array customDisplayListStack;
+    YAZMTCore_DynamicU32Array *customDisplayListStack;
     Gfx* vanillaDisplayList;
     Gfx displayList[2];
 } ZProxy_ProxyContainer;
@@ -23,7 +23,7 @@ typedef struct {
 typedef struct {
     ObjectId vanillaObjId;
     U32MemoryHashmapHandle vanillaDLToCustomDLMap;
-    DynamicU32Array vanillaDisplayLists;
+    YAZMTCore_DynamicU32Array *vanillaDisplayLists;
 } ZProxy;
 
 void ZProxy_initZProxy(ZProxy *zp, ObjectId id);

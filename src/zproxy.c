@@ -13,11 +13,13 @@ void ZProxy_initZProxy(ZProxy *zp, ObjectId id) {
     zp->vanillaObjId = id;
 
     zp->vanillaDLToCustomDLMap = recomputil_create_u32_memory_hashmap(sizeof(ZProxy_ProxyContainer));
+
+    zp->vanillaDisplayLists = YAZMTCore_DynamicU32Array_new();
 }
 
 void ZProxy_destroyZProxy(ZProxy *zp) {
     recomputil_destroy_u32_memory_hashmap(zp->vanillaDLToCustomDLMap);
-    DynU32Arr_destroyMembers(&zp->vanillaDisplayLists);
+    YAZMTCore_DynamicU32Array_destroy(zp->vanillaDisplayLists);
 }
 
 bool ZProxy_reserveContainer(ZProxy *zp, Gfx *vanillaDisplayList) {
@@ -32,9 +34,11 @@ bool ZProxy_reserveContainer(ZProxy *zp, Gfx *vanillaDisplayList) {
     if (!container) {
         if (recomputil_u32_memory_hashmap_create(zp->vanillaDLToCustomDLMap, vanilla)) {
 
-            DynU32Arr_push(&zp->vanillaDisplayLists, (uintptr_t)vanillaDisplayList);
+            YAZMTCore_DynamicU32Array_push(zp->vanillaDisplayLists, (uintptr_t)vanillaDisplayList);
 
             container = recomputil_u32_memory_hashmap_get(zp->vanillaDLToCustomDLMap, vanilla);
+
+            container->customDisplayListStack = YAZMTCore_DynamicU32Array_new();
 
             container->vanillaDisplayList = vanillaDisplayList;
 
@@ -55,8 +59,11 @@ RECOMP_DECLARE_EVENT(onModelChange(ObjectId id, Gfx *vanillaDL, Gfx *newDL))
 void refreshContainerDL(ZProxy *zp, ZProxy_ProxyContainer *c) {
     Gfx *dl = NULL;
 
-    for (size_t i = 0; i < c->customDisplayListStack.count && !dl; ++i) {
-        ZProxy_CustomDisplayListEntry *entry = (ZProxy_CustomDisplayListEntry *)c->customDisplayListStack.data[i];
+    size_t size = YAZMTCore_DynamicU32Array_size(c->customDisplayListStack);
+    ZProxy_CustomDisplayListEntry **data = (ZProxy_CustomDisplayListEntry **)YAZMTCore_DynamicU32Array_data(c->customDisplayListStack);
+
+    for (size_t i = 0; i < size && !dl; ++i) {
+        ZProxy_CustomDisplayListEntry *entry = data[i];
 
         if (entry) {
             dl = entry->customDL;
@@ -123,7 +130,7 @@ bool ZProxy_addCustomDisplayList(ZProxy *zp, ModelReplacerHandle handle) {
     ZProxy_ProxyContainer *container = recomputil_u32_memory_hashmap_get(zp->vanillaDLToCustomDLMap, vanilla);
 
     if (container) {
-        DynU32Arr_push(&container->customDisplayListStack, (uintptr_t)entry);
+        YAZMTCore_DynamicU32Array_push(container->customDisplayListStack, (uintptr_t)entry);
         refreshContainerDL(zp, container);
         return true;
     }
