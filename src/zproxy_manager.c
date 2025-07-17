@@ -180,7 +180,7 @@ void post_DmaMgr_RequestSync() {
                         gSPBranchList(sBowStringWrapperDL, &container->displayList);
 
                         Gfx *bowString = SEGMENTED_TO_GLOBAL_PTR(gRam, vanilla);
-                        gSPBranchList(bowString + 1, sBowStringWrapperDL);
+                        gSPDisplayList(bowString + 1, sBowStringWrapperDL);
                         gSPEndDisplayList(bowString + 2);
                     }
                 }
