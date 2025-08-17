@@ -1,6 +1,6 @@
 {
     "name": "Model_Replacer",
-    "version_number": "0.1.0",
+    "version_number": "0.1.1",
     "website_url": "https://github.com/Neirn/Z64Recomp_ModelReplacer/blob/main/include/modelreplacer_api.h",
     "description": "Simplified model replacement.",
     "dependencies": [
