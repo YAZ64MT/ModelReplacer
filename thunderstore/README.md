@@ -1,4 +1,4 @@
-# Global Objects for Majora's Mask: Recompiled
+# Model Replacer for Majora's Mask: Recompiled
 
 This is a mod for Majora's Mask: Recompiled that can be used to easily replace vanilla models by injecting the different models as objects are loaded into the game.
 

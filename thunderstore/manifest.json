@@ -4,5 +4,7 @@
     "website_url": "https://github.com/YAZ64MT/ModelReplacer",
     "description": "Simplified model replacement.",
     "dependencies": [
+        "YAZMT-YAZMT_Core-0.1.1",
+        "YAZMT-Global_Objects-0.1.1"
     ]
 }
